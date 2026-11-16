@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Recuperacion de fotos borradas de una microSD usando photorec (testdisk).
-# Uso:
-#   ./recover-sd.sh [carpeta_destino]              -> con imagen dd (mas seguro, ocupa el tamano de la SD)
-#   ./recover-sd.sh --no-image [carpeta_destino]   -> directo sobre la SD (sin imagen, no ocupa espacio)
-# Destino por defecto: ~/recovered_photos
+# Recover deleted photos from a microSD card using photorec (testdisk).
+# Usage:
+#   ./recover-sd.sh [destination_folder]              -> with a dd image (safer, takes as much space as the SD card)
+#   ./recover-sd.sh --no-image [destination_folder]   -> directly from the SD card (no image, takes no extra space)
+# Default destination: ~/recovered_photos
 
 set -euo pipefail
 
@@ -15,83 +15,83 @@ fi
 
 DEST="${1:-$HOME/recovered_photos}"
 
-# 1. Dependencias
+# 1. Dependencies
 if ! command -v photorec >/dev/null 2>&1; then
-    echo "photorec no instalado. Instalando con brew..."
+    echo "photorec is not installed. Installing with brew..."
     brew install testdisk
 fi
 
 mkdir -p "$DEST"
 
-# 2. Identificar la SD
+# 2. Identify the SD card
 echo
-echo "=== Discos externos detectados ==="
+echo "=== External disks detected ==="
 diskutil list external
 echo
-echo "Mete la SD si aun no lo has hecho y dale a Enter para refrescar, o escribe el identifier."
-read -rp "Identifier de la SD (ej: disk4, sin /dev/): " DISK
+echo "Insert the SD card if you haven't yet and press Enter to refresh, or type the identifier."
+read -rp "SD card identifier (e.g. disk4, without /dev/): " DISK
 
 if [[ -z "$DISK" ]]; then
-    echo "Refresco:"
+    echo "Refreshing:"
     diskutil list external
-    read -rp "Identifier de la SD: " DISK
+    read -rp "SD card identifier: " DISK
 fi
 
 DEV="/dev/$DISK"
 RDEV="/dev/r$DISK"
 
 if [[ ! -e "$DEV" ]]; then
-    echo "ERROR: $DEV no existe"
+    echo "ERROR: $DEV does not exist"
     exit 1
 fi
 
-# 3. Confirmacion
+# 3. Confirmation
 echo
-echo "Vas a leer $DEV. Verifica que es la SD correcta:"
+echo "You are about to read $DEV. Check that it is the right SD card:"
 diskutil info "$DEV" | grep -E "Device / Media Name|Disk Size|Protocol|Removable Media|Volume Name" || true
 echo
-read -rp "Confirma escribiendo SI: " CONF
-[[ "$CONF" == "SI" ]] || { echo "Cancelado."; exit 1; }
+read -rp "Confirm by typing YES: " CONF
+[[ "$CONF" == "YES" ]] || { echo "Cancelled."; exit 1; }
 
-# 4. Desmontar para que photorec pueda leer en raw
-echo "Desmontando $DISK..."
+# 4. Unmount so photorec can read the raw device
+echo "Unmounting $DISK..."
 diskutil unmountDisk "$DEV"
 
-# 5. Imagen dd (opcional)
+# 5. dd image (optional)
 if [[ "$NO_IMAGE" -eq 1 ]]; then
     TARGET="$RDEV"
     echo
-    echo "Modo --no-image: photorec leera directamente $RDEV (lectura solo, no escribe en la SD)."
+    echo "--no-image mode: photorec will read $RDEV directly (read-only, nothing is written to the SD card)."
 else
     IMG="$DEST/sd_image.dd"
     if [[ -f "$IMG" ]]; then
-        read -rp "Ya existe $IMG. Reusarla (r) o sobreescribir (s)? [r/s]: " OPT
-        if [[ "$OPT" == "s" ]]; then
+        read -rp "$IMG already exists. Reuse it (r) or overwrite it (o)? [r/o]: " OPT
+        if [[ "$OPT" == "o" ]]; then
             rm -f "$IMG"
         fi
     fi
 
     if [[ ! -f "$IMG" ]]; then
-        echo "Creando imagen en $IMG (puede tardar bastante segun tamano de la SD)..."
-        sudo dd if="$RDEV" of="$IMG" bs=4m status=progress
+        echo "Creating image at $IMG (this can take a while depending on the size of the SD card)..."
+        sudo dd if="$RDEV" of="$IMG" bs=4194304 status=progress
         sudo chown "$(whoami)" "$IMG"
     fi
     TARGET="$IMG"
 fi
 
-# 6. Lanzar photorec
+# 6. Launch photorec
 echo
-echo "=== Lanzando photorec ==="
-echo "En la TUI:"
-echo "  1) Particion -> normalmente la unica que aparezca, o [Whole disk]"
+echo "=== Launching photorec ==="
+echo "In the TUI:"
+echo "  1) Partition -> usually the only one listed, or [Whole disk]"
 echo "  2) Filesystem type -> [Other] (FAT/NTFS/exFAT)"
-echo "  3) Free / Whole -> [Whole] para escanear todo el espacio"
-echo "  4) Carpeta destino -> navega hasta $DEST y pulsa C"
+echo "  3) Free / Whole -> [Whole] to scan all the space"
+echo "  4) Destination folder -> navigate to $DEST and press C"
 echo
-echo "Para filtrar solo fotos: en el menu File Opt antes de empezar,"
-echo "pulsa 's' para deseleccionar todo y luego marca jpg, tif, png, raw, etc."
+echo "To recover only photos: in the File Opt menu before starting,"
+echo "press 's' to deselect everything, then enable jpg, tif, png, raw, etc."
 echo
-read -rp "Enter para continuar..." _
+read -rp "Press Enter to continue..." _
 
 if [[ "$NO_IMAGE" -eq 1 ]]; then
     sudo photorec "$TARGET"
@@ -100,8 +100,8 @@ else
 fi
 
 echo
-echo "=== Hecho ==="
-echo "Fotos recuperadas en subcarpetas recup_dir.* dentro de $DEST"
+echo "=== Done ==="
+echo "Recovered photos are in recup_dir.* subfolders inside $DEST"
 if [[ "$NO_IMAGE" -eq 0 ]]; then
-    echo "Imagen original: $IMG (puedes borrarla si ya tienes lo que querias)"
+    echo "Original image: $IMG (you can delete it once you have what you wanted)"
 fi
