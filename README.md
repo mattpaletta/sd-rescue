@@ -28,7 +28,7 @@ PhotoRec is excellent but its CLI is unfriendly: you have to figure out the righ
 ### Requirements
 
 - macOS (tested on Apple Silicon, works on Intel too)
-- [Homebrew](https://brew.sh)
+- `photorec` (part of [testdisk](https://www.cgsecurity.org/wiki/TestDisk)) on your `PATH`, or [Nix](https://nixos.org) with flakes enabled
 - A microSD card reader
 - Disk space — see "Disk space" below
 
@@ -38,6 +38,13 @@ PhotoRec is excellent but its CLI is unfriendly: you have to figure out the righ
 git clone https://github.com/ochias/sd-rescue.git
 cd sd-rescue
 chmod +x recover-sd.sh
+```
+
+With Nix, `photorec` is provided for you — no separate install:
+
+```bash
+nix run . -- ~/Downloads/recovered     # run the script with photorec on PATH
+nix develop                            # or: a shell with photorec available
 ```
 
 ### Usage
@@ -56,7 +63,7 @@ chmod +x recover-sd.sh
 
 The script will:
 
-1. Install `testdisk` via Homebrew if missing.
+1. Check that `photorec` is installed, and exit with an error if it is not (nothing is installed automatically).
 2. List external disks and ask you to identify your SD card.
 3. Confirm the device twice (you really don't want to point this at the wrong disk).
 4. Unmount the SD card.
@@ -115,7 +122,7 @@ PhotoRec es buenísimo pero su CLI es áspera: hay que averiguar qué dispositiv
 ### Requisitos
 
 - macOS (probado en Apple Silicon, funciona también en Intel)
-- [Homebrew](https://brew.sh)
+- `photorec` (incluido en [testdisk](https://www.cgsecurity.org/wiki/TestDisk)) en tu `PATH`, o [Nix](https://nixos.org) con flakes activados
 - Lector de microSD
 - Espacio en disco — ver "Espacio en disco" abajo
 
@@ -125,6 +132,13 @@ PhotoRec es buenísimo pero su CLI es áspera: hay que averiguar qué dispositiv
 git clone https://github.com/ochias/sd-rescue.git
 cd sd-rescue
 chmod +x recover-sd.sh
+```
+
+Con Nix, `photorec` viene incluido — no hay que instalar nada aparte:
+
+```bash
+nix run . -- ~/Downloads/recuperadas   # ejecuta el script con photorec en el PATH
+nix develop                            # o: una shell con photorec disponible
 ```
 
 ### Uso
@@ -143,7 +157,7 @@ chmod +x recover-sd.sh
 
 El script:
 
-1. Instala `testdisk` con Homebrew si no lo tienes.
+1. Comprueba que `photorec` está instalado y termina con un error si no lo está (no instala nada automáticamente).
 2. Lista los discos externos y te pide identificar tu SD.
 3. Confirma el dispositivo dos veces (no quieres apuntar esto al disco equivocado).
 4. Desmonta la SD.

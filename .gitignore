@@ -6,3 +6,6 @@ recup_dir.*/
 PROMO.md
 NOTES.md
 PRIVATE.md
+result
+result-*
+.direnv/

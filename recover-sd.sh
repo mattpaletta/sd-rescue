@@ -17,8 +17,9 @@ DEST="${1:-$HOME/recovered_photos}"
 
 # 1. Dependencies
 if ! command -v photorec >/dev/null 2>&1; then
-    echo "photorec is not installed. Installing with brew..."
-    brew install testdisk
+    echo "ERROR: photorec is not installed (it is part of the testdisk package)." >&2
+    echo "Install testdisk yourself, or run this script through nix: nix run . -- [args]" >&2
+    exit 1
 fi
 
 mkdir -p "$DEST"
@@ -94,7 +95,8 @@ echo
 read -rp "Press Enter to continue..." _
 
 if [[ "$NO_IMAGE" -eq 1 ]]; then
-    sudo photorec "$TARGET"
+    # Absolute path: sudo may reset PATH and lose a nix-provided photorec.
+    sudo "$(command -v photorec)" "$TARGET"
 else
     photorec "$TARGET"
 fi

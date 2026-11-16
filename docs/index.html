@@ -167,7 +167,7 @@
     <section id="install" class="install">
       <div class="install-inner">
         <h2>Install &amp; run</h2>
-        <p class="lede">macOS only. You'll need <a href="https://brew.sh" target="_blank" rel="noopener">Homebrew</a> and a microSD reader.</p>
+        <p class="lede">macOS only. You'll need <code>photorec</code> (part of <a href="https://www.cgsecurity.org/wiki/TestDisk" target="_blank" rel="noopener">testdisk</a>) installed, or <a href="https://nixos.org" target="_blank" rel="noopener">Nix</a> (<code>nix run . -- ~/Downloads/recovered</code>), and a microSD reader.</p>
 
         <div class="step">
           <h3><span class="step-num">1</span> Clone</h3>
@@ -233,7 +233,7 @@ chmod +x recover-sd.sh</code></pre>
 
         <div class="step">
           <h3>How is this different from PhotoRec on its own?</h3>
-          <p>PhotoRec is the engine — sd-rescue is a guided wrapper for macOS. It installs the dependency, lists external disks, asks you to confirm the device twice (you really don't want to point recovery at the wrong drive), unmounts the SD, and either creates a <code>dd</code> image first or runs PhotoRec directly. Without it, the manual flow is doable but unfriendly.</p>
+          <p>PhotoRec is the engine — sd-rescue is a guided wrapper for macOS. It checks that PhotoRec is installed, lists external disks, asks you to confirm the device twice (you really don't want to point recovery at the wrong drive), unmounts the SD, and either creates a <code>dd</code> image first or runs PhotoRec directly. Without it, the manual flow is doable but unfriendly.</p>
         </div>
 
         <div class="step">
